@@ -32,10 +32,5 @@ class FeedView(View):
 
             publicacao.save()
 
-            return HttpResponseRedirect(reverse('feed:feed'))
-
-        publicacao_list = self.get_lista_de_publicacoes()
-        return render(request, self.template_name, {
-            'erro': True,
-            'publicacao_list': publicacao_list,
-        })
+        #  Exibir mensagem de erro ao enviar formulário vazio
+        return HttpResponseRedirect(reverse('feed:feed'))

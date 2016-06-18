@@ -4,12 +4,6 @@
     <form action="{% url 'feed:feed' %}" method="POST" enctype="multipart/form-data">
       {% csrf_token %}
 
-      {% if erro %}
-        <div class="center">
-          Escreva algo!
-        </div>
-      {% endif %}
-
       <textarea name="texto" placeholder="O que deseja compartilhar?" class="materialize-textarea" required></textarea>
       
       <div class="col s12 valign-wrapper">
