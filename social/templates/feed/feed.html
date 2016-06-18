@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% block body %}
+  <div class="row">
+    <form action="{% url 'feed:feed' %}" method="POST" enctype="multipart/form-data">
+      {% csrf_token %}
+
+      {% if erro %}
+        <div class="center">
+          Escreva algo!
+        </div>
+      {% endif %}
+
+      <textarea name="texto" placeholder="O que deseja compartilhar?" class="materialize-textarea" required></textarea>
+      
+      <div class="col s12 valign-wrapper">
+        <div class="file-field input-field col s9">
+          
+          <div class="btn left orange accent-4">
+            <i class="material-icons">perm_media</i>
+            <input type="file" accept="image/*" name="imagem">
+          </div>
+          
+          <div class="file-path-wrapper">
+            <input type="text" class="file-path validate">
+          </div>
+        </div>
+        
+        <div class="valin col s3">
+          <button type="submit" class="right btn waves-effect waves-light orange accent-4">Publicar</button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  {% if publicacao_list %}
+    {% for publicacao in publicacao_list %}
+      <div class="row">
+        <div class="card-panel hoverable">
+          <div class="card-content">
+            <h6>{{ publicacao.data_de_publicacao }}</span></h6>
+          </div>
+
+          {% if publicacao.imagem %}
+          <hr>
+          <div class="card-image">
+            <img src="{{ publicacao.imagem.url }}">
+          </div>
+          {% endif %}
+
+          <div class="card-content">
+            <p>{{ publicacao.texto }}</p>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  {% else %}
+    <div class="center">
+      <h3>Nenhuma publicação</h3>
+    </div>
+  {% endif %}
+{% endblock %}

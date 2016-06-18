@@ -2,7 +2,8 @@
 
 import os
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR = os.path.dirname(os.path.dirname(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 APPS_DIR = BASE_DIR + '/social'
 
 
@@ -21,6 +22,7 @@ THIRD_PARTY_APPS = [
 ]
 
 LOCAL_APPS = [
+    'feed',
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -66,6 +68,7 @@ TEMPLATES = [
             'context_processors': [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
+                'django.template.context_processors.media',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
             ],
@@ -76,18 +79,18 @@ TEMPLATES = [
 
 # STATIC FILE CONFIGURATION
 # ------------------------------------------------------------------------------
-# STATIC_ROOT = str(ROOT_DIR('staticfiles'))
+STATIC_ROOT = BASE_DIR + '/staticfiles'
 
 STATIC_URL = '/static/'
 
-STATICFILES_DIRS = (
+STATICFILES_DIRS = [
     APPS_DIR + '/static',
-)
+]
 
-STATICFILES_FINDERS = (
+STATICFILES_FINDERS = [
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-)
+]
 
 
 # MEDIA CONFIGURATION
@@ -125,4 +128,4 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-ALLOWED_HOSTS = []
+# ALLOWED_HOSTS = []

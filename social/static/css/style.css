@@ -1,0 +1,15 @@
+::-webkit-input-placeholder {
+    color: #757575;
+    opacity: 1 !important; /* for chrome */
+}
+
+::-moz-placeholder {  /* Firefox 19+ */
+    color: #757575;
+}
+
+.card-image img{
+	max-height: 400px;
+	max-width: 1000px;
+	width: auto;
+	height: auto;
+}
