@@ -1,8 +1,7 @@
 {% extends 'base.html' %}
 {% block body %}
   <div class="row">
-    <form action="{% url 'feed:feed' %}" method="POST" enctype="multipart/form-data">
-      {% csrf_token %}
+    <form action="{% url 'feed:feed' %}" method="POST" enctype="multipart/form-data">{% csrf_token %}
 
       <textarea name="texto" placeholder="O que deseja compartilhar?" class="materialize-textarea" required></textarea>
       
@@ -52,4 +51,4 @@
       <h3>Nenhuma publicação</h3>
     </div>
   {% endif %}
-{% endblock %}
+{% endblock body %}

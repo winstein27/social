@@ -6,4 +6,5 @@ from django.contrib import admin
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^', include('feed.urls')),
+    url(r'^', include('authentication.urls'))
 ]

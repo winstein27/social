@@ -2,6 +2,7 @@
 
 from django.test import TestCase
 from django.core.urlresolvers import reverse
+from django.contrib.auth.models import User
 
 from unittest import skip
 import os
@@ -20,14 +21,32 @@ class FeedViewTest(TestCase):
         BASE_DIR = os.path.dirname(os.path.abspath(__file__))
         return BASE_DIR + '/files/imagem_para_teste.png'
 
-    def acessa_feed(self):
-        return self.client.get(reverse('feed:feed'))
+    @staticmethod
+    def try_to_publish(instance, context):
+        instance.client.force_login(user=instance.user)
+        return instance.client.post(reverse('feed:feed'), context, follow=True)
+
+    @staticmethod
+    def acessa_feed(instance):
+        instance.client.force_login(user=instance.user)
+        return instance.client.get(reverse('feed:feed'))
+
+    @classmethod
+    def setUp(cls):
+        cls.user = User.objects.create(
+            username='temporary',
+            email='temporary@gmail.com',
+            password='tempo1234')
+
+    @classmethod
+    def tearDown(cls):
+        cls.user.delete()
 
     def test_feed_views_sem_publicacoes(self):
         """
         Quando não houverem publicações deve ser exibida uma mensagem de aviso
         """
-        response = self.acessa_feed()
+        response = self.acessa_feed(self)
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Nenhuma publicação')
@@ -40,7 +59,7 @@ class FeedViewTest(TestCase):
         """
         publicacao = self.cria_publicacao('Publicação para teste')
 
-        response = self.acessa_feed()
+        response = self.acessa_feed(self)
 
         self.assertContains(response, publicacao.texto)
         self.assertNotContains(response, 'Nenhuma publicação')
@@ -54,7 +73,7 @@ class FeedViewTest(TestCase):
         primeira_publicacao = self.cria_publicacao('Primeira publicação')
         segunda_publicacao = self.cria_publicacao('Segunda publicação')
 
-        response = self.acessa_feed()
+        response = self.acessa_feed(self)
 
         self.assertContains(response, primeira_publicacao.texto)
         self.assertContains(response, segunda_publicacao.texto)
@@ -66,7 +85,7 @@ class FeedViewTest(TestCase):
         Ao publicar sem inserir texto e sem inserir imagem, a publicação não
         deve ser feita e não deve existir nenhuma publicação no feed
         """
-        response = self.client.post(reverse('feed:feed'), follow=True)
+        response = self.try_to_publish(self, {})
 
         self.assertQuerysetEqual(response.context['publicacao_list'], [])
         self.assertEqual(response.status_code, 200)
@@ -79,9 +98,7 @@ class FeedViewTest(TestCase):
         """
         response = None
         with open(self.get_local_da_imagem(), 'rb') as imagem:
-            response = self.client.post(
-                reverse('feed:feed'), {'imagem': imagem}, follow=True
-            )
+            response = self.try_to_publish(self, {'imagem': imagem})
 
         self.assertNotContains(response, 'imagem_para_teste')
         self.assertQuerysetEqual(response.context['publicacao_list'], [])
@@ -93,9 +110,7 @@ class FeedViewTest(TestCase):
         deve ser feita e exibida no feed
         """
         texto_para_publicacao = 'Texto para publicação de teste'
-        response = self.client.post(
-            reverse('feed:feed'), {'texto': texto_para_publicacao}, follow=True
-        )
+        response = self.try_to_publish(self, {'texto': texto_para_publicacao})
 
         self.assertEqual(len(response.redirect_chain), 1)
         self.assertContains(response, texto_para_publicacao)
@@ -110,10 +125,8 @@ class FeedViewTest(TestCase):
         texto_para_publicacao = 'Texto para publicação de teste'
 
         with open(self.get_local_da_imagem(), 'rb') as imagem:
-            contexto = {'texto': texto_para_publicacao, 'imagem': imagem}
-            response = self.client.post(
-                reverse('feed:feed'), contexto, follow=True
-            )
+            context = {'texto': texto_para_publicacao, 'imagem': imagem}
+            response = self.try_to_publish(self, context)
 
         self.assertContains(response, texto_para_publicacao)
         self.assertContains(response, 'imagem_para_teste')

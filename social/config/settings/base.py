@@ -23,6 +23,7 @@ THIRD_PARTY_APPS = [
 
 LOCAL_APPS = [
     'feed',
+    'authentication'
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -127,5 +128,12 @@ AUTH_PASSWORD_VALIDATORS = [
         '.NumericPasswordValidator',
     },
 ]
+
+
+# LOGIN CONFIGURATION
+# ------------------------------------------------------------------------------
+LOGIN_REDIRECT_URL = 'feed:feed'
+
+LOGIN_URL = 'authentication:login'
 
 # ALLOWED_HOSTS = []
