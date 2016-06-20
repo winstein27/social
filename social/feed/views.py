@@ -6,33 +6,28 @@ from django.core.urlresolvers import reverse
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
 
-from .models import Publicacao
-from .forms import PublicacaoForm
+from .models import Post
+from .forms import PostForm
 
 
 class FeedView(View):
     template_name = 'feed/feed.html'
-    context_object_name = 'post_list'
-
-    def get_lista_de_publicacoes(self):
-        return Publicacao.objects.all().order_by('-data_de_publicacao')
 
     @method_decorator(login_required)
     def get(self, request):
-        publicacao_list = self.get_lista_de_publicacoes()
+        post_list = Post.objects.all().order_by('-pub_date')
 
-        return render(request, self.template_name,
-                      {'publicacao_list': publicacao_list})
+        return render(request, self.template_name, {'post_list': post_list})
 
     @method_decorator(login_required)
     def post(self, request):
-        form = PublicacaoForm(request.POST, request.FILES)
+        form = PostForm(request.POST, request.FILES)
 
         if form.is_valid():
-            publicacao = Publicacao()
-            publicacao.texto = form.cleaned_data['texto']
-            publicacao.imagem = form.cleaned_data['imagem']
+            post = Post()
+            post.text = form.cleaned_data['text']
+            post.image = form.cleaned_data['image']
 
-            publicacao.save()
+            post.save()
 
         return redirect(reverse('feed:feed'))

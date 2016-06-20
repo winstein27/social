@@ -3,7 +3,7 @@
 from django import forms
 
 
-class PublicacaoForm(forms.Form):
+class PostForm(forms.Form):
 
-    texto = forms.CharField(widget=forms.Textarea, required=True)
-    imagem = forms.ImageField(required=False)
+    text = forms.CharField(widget=forms.Textarea, required=True)
+    image = forms.ImageField(required=False)

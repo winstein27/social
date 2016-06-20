@@ -7,6 +7,11 @@
     color: #757575;
 }
 
+form .materialize-textarea:focus {
+    border-bottom: 1px solid #ff6d00 !important;
+    box-shadow: 0 1px 0 0 #ff6d00 !important;
+}
+
 .card-image img{
 	max-height: 400px;
 	max-width: 1000px;

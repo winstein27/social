@@ -3,9 +3,9 @@
 from django.db import models
 
 
-class Publicacao(models.Model):
+class Post(models.Model):
 
-    texto = models.TextField(blank=False)
-    data_de_publicacao = models.DateTimeField(
+    text = models.TextField(blank=False)
+    pub_date = models.DateTimeField(
         auto_now=False, auto_now_add=True)
-    imagem = models.ImageField(upload_to='fotos/%Y/%m/%d/', blank=True)
+    image = models.ImageField(upload_to='photos/%Y/%m/%d/', blank=True)

@@ -7,19 +7,19 @@ from django.contrib.auth.models import User
 from unittest import skip
 import os
 
-from feed.models import Publicacao
+from feed.models import Post
 
 
 class FeedViewTest(TestCase):
 
     @staticmethod
-    def cria_publicacao(texto):
-        return Publicacao.objects.create(texto=texto)
+    def create_post(text):
+        return Post.objects.create(text=text)
 
     @staticmethod
-    def get_local_da_imagem():
+    def get_image_path():
         BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-        return BASE_DIR + '/files/imagem_para_teste.png'
+        return BASE_DIR + '/files/image_test.png'
 
     @staticmethod
     def try_to_publish(instance, context):
@@ -27,7 +27,7 @@ class FeedViewTest(TestCase):
         return instance.client.post(reverse('feed:feed'), context, follow=True)
 
     @staticmethod
-    def acessa_feed(instance):
+    def access_feed(instance):
         instance.client.force_login(user=instance.user)
         return instance.client.get(reverse('feed:feed'))
 
@@ -42,93 +42,93 @@ class FeedViewTest(TestCase):
     def tearDown(cls):
         cls.user.delete()
 
-    def test_feed_views_sem_publicacoes(self):
+    def test_feed_without_posts(self):
         """
-        Quando não houverem publicações deve ser exibida uma mensagem de aviso
+        A warning message must be displayed when there are no posts
         """
-        response = self.acessa_feed(self)
+        response = self.access_feed(self)
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Nenhuma publicação')
-        self.assertQuerysetEqual(response.context['publicacao_list'], [])
+        self.assertQuerysetEqual(response.context['post_list'], [])
 
-    def test_feed_com_uma_publicacao(self):
+    def test_feed_with_one_post(self):
         """
-        Quando houver um única publicação, apenas ela deve ser exibida, sem
-        exibir mensagem de aviso
+        If there is only one post, it must be displayed on the feed
+        without any warning messages
         """
-        publicacao = self.cria_publicacao('Publicação para teste')
+        post = self.create_post('Test Post')
 
-        response = self.acessa_feed(self)
+        response = self.access_feed(self)
 
-        self.assertContains(response, publicacao.texto)
+        self.assertContains(response, post.text)
         self.assertNotContains(response, 'Nenhuma publicação')
-        self.assertEqual(len(response.context['publicacao_list']), 1)
+        self.assertEqual(len(response.context['post_list']), 1)
 
-    def test_feed_com_duas_publicacoes(self):
+    def test_feed_with_two_posts(self):
         """
-        Quando houverem publicações, apenas as publicações devem ser exibidas,
-        sem exibir mensagem de aviso
+        If there are more than one posts, they must be displayed on the
+        without any warning messages
         """
-        primeira_publicacao = self.cria_publicacao('Primeira publicação')
-        segunda_publicacao = self.cria_publicacao('Segunda publicação')
+        first_post = self.create_post('First Post')
+        seconde_post = self.create_post('Second Post')
 
-        response = self.acessa_feed(self)
+        response = self.access_feed(self)
 
-        self.assertContains(response, primeira_publicacao.texto)
-        self.assertContains(response, segunda_publicacao.texto)
+        self.assertContains(response, first_post.text)
+        self.assertContains(response, seconde_post.text)
         self.assertNotContains(response, 'Nenhuma publicação')
-        self.assertEqual(len(response.context['publicacao_list']), 2)
+        self.assertEqual(len(response.context['post_list']), 2)
 
-    def test_publicar_sem_texto_e_sem_imagem(self):
+    def test_publish_with_no_text_and_no_image(self):
         """
-        Ao publicar sem inserir texto e sem inserir imagem, a publicação não
-        deve ser feita e não deve existir nenhuma publicação no feed
+        Trying to pusblish a post with no text and no image, the post
+        must not be published and the feed must not has any post
         """
         response = self.try_to_publish(self, {})
 
-        self.assertQuerysetEqual(response.context['publicacao_list'], [])
+        self.assertQuerysetEqual(response.context['post_list'], [])
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.redirect_chain), 1)
 
-    def test_publicar_sem_texto_e_com_imagem(self):
+    def test_publish_with_no_text_and_a_image(self):
         """
-         Ao publicar sem inserir texto e inseririndo imagem, a publicação não
-        deve ser feita
-        """
-        response = None
-        with open(self.get_local_da_imagem(), 'rb') as imagem:
-            response = self.try_to_publish(self, {'imagem': imagem})
-
-        self.assertNotContains(response, 'imagem_para_teste')
-        self.assertQuerysetEqual(response.context['publicacao_list'], [])
-        self.assertEqual(len(response.redirect_chain), 1)
-
-    def test_publiar_com_texto_e_sem_imagem(self):
-        """
-        Ao publicar inserindo apenas um texto, sem inserir imagem, a publicação
-        deve ser feita e exibida no feed
-        """
-        texto_para_publicacao = 'Texto para publicação de teste'
-        response = self.try_to_publish(self, {'texto': texto_para_publicacao})
-
-        self.assertEqual(len(response.redirect_chain), 1)
-        self.assertContains(response, texto_para_publicacao)
-        self.assertEqual(len(response.context['publicacao_list']), 1)
-
-    def test_publicar_com_texto_e_com_imagem(self):
-        """
-        Ao publicar inserindo texto e imagem, a publicação deve ser feita
-        exibindo o texto e a imagem
+        Trying to publish a post with no text and a image, the post must not
+        be published and the feed must not has any post
         """
         response = None
-        texto_para_publicacao = 'Texto para publicação de teste'
+        with open(self.get_image_path(), 'rb') as image:
+            response = self.try_to_publish(self, {'image': image})
 
-        with open(self.get_local_da_imagem(), 'rb') as imagem:
-            context = {'texto': texto_para_publicacao, 'imagem': imagem}
+        self.assertNotContains(response, 'image_test')
+        self.assertQuerysetEqual(response.context['post_list'], [])
+        self.assertEqual(len(response.redirect_chain), 1)
+
+    def test_publish_with_text_and_no_image(self):
+        """
+        Trying to publish a post with text and no image, the post must be
+        published and displayed on the feed
+        """
+        post_text = 'Post text'
+        response = self.try_to_publish(self, {'text': post_text})
+
+        self.assertEqual(len(response.redirect_chain), 1)
+        self.assertContains(response, post_text)
+        self.assertEqual(len(response.context['post_list']), 1)
+
+    def test_publish_with_text_and_image(self):
+        """
+        Trying to publish a post with text and image, the post must be
+        published and displayed on the feed
+        """
+        response = None
+        post_text = 'Post text'
+
+        with open(self.get_image_path(), 'rb') as image:
+            context = {'text': post_text, 'image': image}
             response = self.try_to_publish(self, context)
 
-        self.assertContains(response, texto_para_publicacao)
-        self.assertContains(response, 'imagem_para_teste')
-        self.assertEqual(len(response.context['publicacao_list']), 1)
+        self.assertContains(response, post_text)
+        self.assertContains(response, 'image_test')
+        self.assertEqual(len(response.context['post_list']), 1)
         self.assertEqual(len(response.redirect_chain), 1)
