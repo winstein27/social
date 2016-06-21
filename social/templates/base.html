@@ -15,7 +15,15 @@
 </head>
 <body class=" blue-grey lighten-5">
   <nav>
-    <div class="nav-wrapper black"></div>
+    <div class="nav-wrapper black">
+      <ul class="left hide-on-med-and-down">
+        <li><a href="{% url 'feed:feed' %}">Home</a></li>
+        <li><a href="{% url 'authentication:profile' %}">Perfil</a></li>
+      </ul>
+      <ul class=right>
+        <li><a href="{% url 'authentication:logout' %}">Logout</a></li>
+      </ul>
+    </div>
   </nav>
   <main>
     <div class="container" >

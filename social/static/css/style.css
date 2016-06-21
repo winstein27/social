@@ -7,9 +7,16 @@
     color: #757575;
 }
 
+.input-field input[type=text]:focus,
+.input-field input[type=email]:focus,
 form .materialize-textarea:focus {
     border-bottom: 1px solid #ff6d00 !important;
     box-shadow: 0 1px 0 0 #ff6d00 !important;
+}
+
+.input-field input[type=email]:focus + label,
+.input-field input[type=text]:focus + label {
+    color: #ff6d00;
 }
 
 .card-image img{
@@ -17,4 +24,9 @@ form .materialize-textarea:focus {
 	max-width: 1000px;
 	width: auto;
 	height: auto;
+}
+
+.profile-image {
+    max-height: 70px;
+    max-width: 70px;
 }

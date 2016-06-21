@@ -4,17 +4,17 @@ from django.test import TestCase
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 
-from unittest import skip
 import os
 
 from feed.models import Post
+from authentication.models import Profile
 
 
 class FeedViewTest(TestCase):
 
     @staticmethod
-    def create_post(text):
-        return Post.objects.create(text=text)
+    def create_post(instance, text):
+        return Post.objects.create(author=instance.user.profile, text=text)
 
     @staticmethod
     def get_image_path():
@@ -38,6 +38,10 @@ class FeedViewTest(TestCase):
             email='temporary@gmail.com',
             password='tempo1234')
 
+        profile = Profile()
+        profile.user = cls.user
+        profile.save()
+
     @classmethod
     def tearDown(cls):
         cls.user.delete()
@@ -57,7 +61,7 @@ class FeedViewTest(TestCase):
         If there is only one post, it must be displayed on the feed
         without any warning messages
         """
-        post = self.create_post('Test Post')
+        post = self.create_post(self, 'Test Post')
 
         response = self.access_feed(self)
 
@@ -70,8 +74,8 @@ class FeedViewTest(TestCase):
         If there are more than one posts, they must be displayed on the
         without any warning messages
         """
-        first_post = self.create_post('First Post')
-        seconde_post = self.create_post('Second Post')
+        first_post = self.create_post(self, 'First Post')
+        seconde_post = self.create_post(self, 'Second Post')
 
         response = self.access_feed(self)
 

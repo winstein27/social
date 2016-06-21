@@ -27,6 +27,7 @@ class FeedView(View):
             post = Post()
             post.text = form.cleaned_data['text']
             post.image = form.cleaned_data['image']
+            post.author = request.user.profile
 
             post.save()
 
