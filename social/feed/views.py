@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic import View
 from django.core.urlresolvers import reverse
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
+from django.http import HttpResponse
 
 from .models import Post
 from .forms import PostForm
@@ -32,3 +33,17 @@ class FeedView(View):
             post.save()
 
         return redirect(reverse('feed:feed'))
+
+
+class PostDeleteView(View):
+
+    @method_decorator(login_required)
+    def post(self, request):
+        post_id = request.POST['post_id']
+        post = get_object_or_404(Post, id=post_id)
+
+        if post.author.user == request.user:
+            post.delete()
+            return HttpResponse(status=200)
+
+        return HttpResponse(status=401)

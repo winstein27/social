@@ -13,47 +13,41 @@ from authentication.models import Profile
 class ProfileViewTest(TestCase):
 
     @staticmethod
-    def access_profile_screen(instance):
-        instance.client.force_login(instance.profile.user)
-        return instance.client.get(reverse('authentication:profile'))
-
-    @staticmethod
-    def try_to_edit_profile(instance, context):
-        instance.client.force_login(instance.profile.user)
-        return instance.client.post(
-            reverse('authentication:profile'), context, follow=True)
-
-    @staticmethod
     def get_image_path():
         BASE_DIR = os.path.dirname(os.path.abspath(__file__))
         return BASE_DIR + '/files/profile_test.jpg'
 
     @classmethod
     def setUp(cls):
-        user = User()
-        user.username = 'test_user'
-        user.password = 'test_password'
-        user.email = 'email@test.com'
-        user.first_name = 'First'
-        user.last_name = 'Last'
+        user = User.objects.create(
+            username='test_user',
+            password='test_password',
+            email='email@test.com',
+            first_name='First',
+            last_name='Last',
+        )
 
-        user.save()
-
-        cls.profile = Profile()
-        cls.profile.user = user
-
-        cls.profile.save()
+        cls.profile = Profile.objects.create(user=user)
 
     @classmethod
     def tearDown(cls):
         cls.profile.user.delete()
         cls.profile.delete()
 
+    def access_profile_screen(self):
+        self.client.force_login(self.profile.user)
+        return self.client.get(reverse('authentication:profile'))
+
+    def try_to_edit_profile(self, context):
+        self.client.force_login(self.profile.user)
+        return self.client.post(
+            reverse('authentication:profile'), context, follow=True)
+
     def test_profile_details(self):
         """
         Checks if all the profile`s data are displayed
         """
-        response = self.access_profile_screen(self)
+        response = self.access_profile_screen()
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['profile'], self.profile)
@@ -75,7 +69,7 @@ class ProfileViewTest(TestCase):
                 'image': image,
             }
 
-            response = self.try_to_edit_profile(self, context)
+            response = self.try_to_edit_profile(context)
 
         self.assertEqual(len(response.redirect_chain), 1)
         self.assertNotContains(response, 'new_username')
@@ -102,7 +96,7 @@ class ProfileViewTest(TestCase):
                 'image': image,
             }
 
-            response = self.try_to_edit_profile(self, context)
+            response = self.try_to_edit_profile(context)
 
         self.assertEqual(len(response.redirect_chain), 1)
         self.assertEqual(response.context['profile'], self.profile)
@@ -130,7 +124,7 @@ class ProfileViewTest(TestCase):
                 'image': image,
             }
 
-            response = self.try_to_edit_profile(self, context)
+            response = self.try_to_edit_profile(context)
 
         self.assertEqual(len(response.redirect_chain), 1)
         self.assertEqual(response.context['profile'], self.profile)
@@ -158,7 +152,7 @@ class ProfileViewTest(TestCase):
                 'image': image,
             }
 
-            response = self.try_to_edit_profile(self, context)
+            response = self.try_to_edit_profile(context)
 
         self.assertEqual(len(response.redirect_chain), 1)
         self.assertEqual(response.context['profile'], self.profile)
@@ -184,7 +178,7 @@ class ProfileViewTest(TestCase):
             'last_name': 'new_last_name',
         }
 
-        response = self.try_to_edit_profile(self, context)
+        response = self.try_to_edit_profile(context)
         print(self.profile.image)
         print(response.context['profile'].image)
 
