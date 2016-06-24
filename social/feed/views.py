@@ -1,14 +1,15 @@
 # -*- coding: utf-8 -*-
 
-from django.shortcuts import render, redirect, get_object_or_404
-from django.views.generic import View
 from django.core.urlresolvers import reverse
-from django.utils.decorators import method_decorator
+
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
+from django.shortcuts import render, redirect, get_object_or_404
+from django.utils.decorators import method_decorator
+from django.views.generic import View
 
-from .models import Post
 from .forms import PostForm
+from .models import Post
 
 
 class FeedView(View):

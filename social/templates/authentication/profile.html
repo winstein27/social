@@ -1,55 +1,99 @@
 {% extends 'base.html' %}
 {% load staticfiles %}
 {% block body %}
+  <div class="row col s12">
+    <ul class="tabs">
+      <li class="tab"><a href="#info">Informações pessoais</a></li>
+      <li class="tab"><a href="#password">Senha</a></li>
+    </ul>
+  </div>
+
   <div class="card-panel">
-    <div class="col s12">
-      <div class="card-image center">
-        {% if profile.image %}
-          <img src="{{ profile.image.url }}">
-        {% else %}
-          <img src="{% static 'img/generic_profile_img.jpg' %}">
-        {% endif %}
+    <div id="info" class="col s12">
+      <div class="col s12">
+        <div class="card-image center">
+          {% if profile.image %}
+            <img src="{{ profile.image.url }}">
+          {% else %}
+            <img src="{% static 'img/generic_profile_img.jpg' %}">
+          {% endif %}
+        </div>
+        <div class="card-content">
+          <hr><br>
+          <form action="" method="POST" enctype="multipart/form-data">{% csrf_token %}
+            
+            <div class="file-field input-field">
+              <div class="btn left orange accent-4">
+                <i class="material-icons">perm_media</i>
+                <input type="file" accept="image/*" name="image">
+              </div>            
+              <div class="file-path-wrapper">
+                <input type="text" placeholder="Imagem de perfil" class="file-path validate">
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="input-field col s6">
+                <input type="text" name="first_name" id="first_name" value="{{ profile.user.first_name }}" class="validate" required autofocus>
+                <label for="first_name">Nome</label>
+              </div>
+              <div class="input-field col s6">
+                <input type="text" name="last_name" id="last_name" value="{{ profile.user.last_name }}" class="validate" required>
+                <label for="last_name">Sobrenome</label>
+              </div>
+            </div>
+
+            <div class="input-field">
+              <input type="email" name="email" id="email" value="{{ profile.user.email }}" class="validate" required>
+              <label for="email">Email</label>
+            </div>
+
+            <div class="input-field">
+              <input name="username" id="username" type="text" class="validate" value="{{ profile.user.username }}" disabled>
+              <label for="username">Usuário</label>
+            </div>
+
+            <div class="col s12 center">
+              <button type="submit" class="btn waves-effect waves-light orange accent-4">Alterar</button>
+            </div>
+          </form>
+        </div>
       </div>
-      <div class="card-content">
-        <hr><br>
-        <form action="" method="POST" enctype="multipart/form-data">{% csrf_token %}
+    </div>
+
+    <div id="password" class="col s12">
+      <h5 class="center-align">Alterar Senha</h5>
+      
+      <div class="row">
+        <div class="col s4 white-text">center</div>
+        <div class="row col s4 center-align">
+
+          <div id="div-message"><span id="password-message"></span></div>
           
-          <div class="file-field input-field">
-            <div class="btn left orange accent-4">
-              <i class="material-icons">perm_media</i>
-              <input type="file" accept="image/*" name="image">
-            </div>            
-            <div class="file-path-wrapper">
-              <input type="text" placeholder="Imagem de perfil" class="file-path validate">
+          <form action="{% url 'authentication:password' %}" method="POST" enctype="multipart/form-data" id="chage-password">{% csrf_token %}
+            <div class="input-field">
+              <input type="password" id="old_password" name="old_password" required>
+              <label for="old_password">Senha Antiga</label>        
             </div>
-          </div>
 
-          <div class="row">
-            <div class="input-field col s6">
-              <input type="text" name="first_name" id="first_name" value="{{ profile.user.first_name }}" class="validate" required autofocus>
-              <label for="first_name">Nome</label>
+            <div class="input-field">
+              <input type="password" id="new_password" name="new_password" class="tooltipped" data-position="right" data-delay="50" data-tooltip="No mínimo 8 caracteres" required>
+              <label for="new_password">Nova Senha</label>
             </div>
-            <div class="input-field col s6">
-              <input type="text" name="last_name" id="last_name" value="{{ profile.user.last_name }}" class="validate" required>
-              <label for="last_name">Sobrenome</label>
+            
+            <div class="input-field">
+              <input type="password" id="verification_password" name="verification_password" required>
+              <label for="verification_password">Nova Senha</label>
             </div>
-          </div>
 
-          <div class="input-field">
-            <input type="email" name="email" id="email" value="{{ profile.user.email }}" class="validate" required>
-            <label for="email">Email</label>
-          </div>
-
-          <div class="input-field">
-            <input name="username" id="username" type="text" class="validate" value="{{ profile.user.username }}" disabled>
-            <label for="username">Usuário</label>
-          </div>
-
-          <div class="col s12 center">
             <button type="submit" class="btn waves-effect waves-light orange accent-4">Alterar</button>
-          </div>
-        </form>
+          </form>
+        </div>
       </div>
+
     </div>
   </div>
 {% endblock body %}
+{% block javascript %}
+  <script type="text/javascript" src="{% static 'js/authentication/password.js' %}"></script>
+{% endblock javascript %}

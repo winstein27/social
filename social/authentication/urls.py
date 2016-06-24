@@ -3,7 +3,7 @@
 from django.conf.urls import url
 from django.contrib.auth.views import login, logout_then_login
 
-from .views import ProfileView
+from .views import ProfileView, ProfilePasswordView
 
 app_name = 'authentication'
 urlpatterns = [
@@ -12,4 +12,5 @@ urlpatterns = [
     url(r'^logout/$', logout_then_login, {'login_url': 'authentication:login'},
         name='logout'),
     url(r'^profile/$', ProfileView.as_view(), name='profile'),
+    url(r'^chagePassword/$', ProfilePasswordView.as_view(), name='password'),
 ]

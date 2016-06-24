@@ -61,22 +61,22 @@ class ProfileViewTest(TestCase):
 
         with open(self.get_image_path(), 'rb') as image:
             context = {
-                'username': 'new_username',
-                'password': 'new_password',
+                'username': 'changed_username',
+                'password': 'changed_password',
                 'email': 'new@email.com',
-                'first_name': 'new_first_name',
-                'last_name': 'new_last_name',
+                'first_name': 'changed_first_name',
+                'last_name': 'changed_last_name',
                 'image': image,
             }
 
             response = self.try_to_edit_profile(context)
 
         self.assertEqual(len(response.redirect_chain), 1)
-        self.assertNotContains(response, 'new_username')
-        self.assertNotContains(response, 'new_password')
+        self.assertNotContains(response, 'changed_username')
+        self.assertNotContains(response, 'changed_password')
         self.assertContains(response, 'new@email.com')
-        self.assertContains(response, 'new_first_name')
-        self.assertContains(response, 'new_last_name')
+        self.assertContains(response, 'changed_first_name')
+        self.assertContains(response, 'changed_last_name')
         self.assertContains(response, 'profile_test')
 
     def test_edit_profile_without_first_name(self):
@@ -88,11 +88,11 @@ class ProfileViewTest(TestCase):
 
         with open(self.get_image_path(), 'rb') as image:
             context = {
-                'username': 'new_username',
-                'password': 'new_password',
+                'username': 'changed_username',
+                'password': 'changed_password',
                 'email': 'new@email.com',
                 'first_name': '',
-                'last_name': 'new_last_name',
+                'last_name': 'changed_last_name',
                 'image': image,
             }
 
@@ -100,11 +100,11 @@ class ProfileViewTest(TestCase):
 
         self.assertEqual(len(response.redirect_chain), 1)
         self.assertEqual(response.context['profile'], self.profile)
-        self.assertNotContains(response, 'new_username')
-        self.assertNotContains(response, 'new_password')
+        self.assertNotContains(response, 'changed_username')
+        self.assertNotContains(response, 'changed_password')
         self.assertNotContains(response, 'new@email.com')
-        self.assertNotContains(response, 'new_first_name')
-        self.assertNotContains(response, 'new_last_name')
+        self.assertNotContains(response, 'changed_first_name')
+        self.assertNotContains(response, 'changed_last_name')
         self.assertNotContains(response, 'profile_test')
 
     def test_edit_profile_without_last_name(self):
@@ -116,10 +116,10 @@ class ProfileViewTest(TestCase):
 
         with open(self.get_image_path(), 'rb') as image:
             context = {
-                'username': 'new_username',
-                'password': 'new_password',
+                'username': 'changed_username',
+                'password': 'changed_password',
                 'email': 'new@email.com',
-                'first_name': 'new_first_name',
+                'first_name': 'changed_first_name',
                 'last_name': '',
                 'image': image,
             }
@@ -128,11 +128,11 @@ class ProfileViewTest(TestCase):
 
         self.assertEqual(len(response.redirect_chain), 1)
         self.assertEqual(response.context['profile'], self.profile)
-        self.assertNotContains(response, 'new_username')
-        self.assertNotContains(response, 'new_password')
+        self.assertNotContains(response, 'changed_username')
+        self.assertNotContains(response, 'changed_password')
         self.assertNotContains(response, 'new@email.com')
-        self.assertNotContains(response, 'new_first_name')
-        self.assertNotContains(response, 'new_last_name')
+        self.assertNotContains(response, 'changed_first_name')
+        self.assertNotContains(response, 'changed_last_name')
         self.assertNotContains(response, 'profile_test')
 
     def test_edit_profile_without_email(self):
@@ -144,11 +144,11 @@ class ProfileViewTest(TestCase):
 
         with open(self.get_image_path(), 'rb') as image:
             context = {
-                'username': 'new_username',
-                'password': 'new_password',
+                'username': 'changed_username',
+                'password': 'changed_password',
                 'email': '',
-                'first_name': 'new_first_name',
-                'last_name': 'new_last_name',
+                'first_name': 'changed_first_name',
+                'last_name': 'changed_last_name',
                 'image': image,
             }
 
@@ -156,11 +156,11 @@ class ProfileViewTest(TestCase):
 
         self.assertEqual(len(response.redirect_chain), 1)
         self.assertEqual(response.context['profile'], self.profile)
-        self.assertNotContains(response, 'new_username')
-        self.assertNotContains(response, 'new_password')
+        self.assertNotContains(response, 'changed_username')
+        self.assertNotContains(response, 'changed_password')
         self.assertNotContains(response, 'new@email.com')
-        self.assertNotContains(response, 'new_first_name')
-        self.assertNotContains(response, 'new_last_name')
+        self.assertNotContains(response, 'changed_first_name')
+        self.assertNotContains(response, 'changed_last_name')
         self.assertNotContains(response, 'profile_test')
 
     def test_edit_profile_without_image(self):
@@ -171,11 +171,11 @@ class ProfileViewTest(TestCase):
         response = None
 
         context = {
-            'username': 'new_username',
-            'password': 'new_password',
+            'username': 'changed_username',
+            'password': 'changed_password',
             'email': 'new@email.com',
-            'first_name': 'new_first_name',
-            'last_name': 'new_last_name',
+            'first_name': 'changed_first_name',
+            'last_name': 'changed_last_name',
         }
 
         response = self.try_to_edit_profile(context)
@@ -183,8 +183,8 @@ class ProfileViewTest(TestCase):
         print(response.context['profile'].image)
 
         self.assertEqual(len(response.redirect_chain), 1)
-        self.assertNotContains(response, 'new_username')
-        self.assertNotContains(response, 'new_password')
+        self.assertNotContains(response, 'changed_username')
+        self.assertNotContains(response, 'changed_password')
         self.assertContains(response, 'new@email.com')
-        self.assertContains(response, 'new_first_name')
-        self.assertContains(response, 'new_last_name')
+        self.assertContains(response, 'changed_first_name')
+        self.assertContains(response, 'changed_last_name')

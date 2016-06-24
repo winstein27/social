@@ -48,7 +48,7 @@
               {% if post.author.user == user %}
                 <div class="right">
                   <ul id="dropdown_{{post.id}}" class="dropdown-content">
-                    <li><a href="" class="edit-post"><i class="material-icons orange-text text-accent-4">mode_edit</i></a></li>
+                    <!-- <li><a href="" class="edit-post"><i class="material-icons orange-text text-accent-4">mode_edit</i></a></li> -->
                     <li><a href="" onclick="deletePost({% url 'feed:delete' %}, {{ post.id }})" class="delete-post"><i class="material-icons orange-text text-accent-4">delete</i></a></li>
                   </ul>
                   <a href="#!" data-activates="dropdown_{{post.id}}" class="btn-floating dropdown-button orange accent-4"><i class="material-icons right">more_vert</i></i></a>
