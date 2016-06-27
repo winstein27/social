@@ -199,7 +199,7 @@ class DeleteViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertNotIn(post, Post.objects.all())
 
-    def test_delete_a_not_owned_post_amond_many_posts(self):
+    def test_delete_a_not_owned_post_among_many_posts(self):
         """
         Trying to delete a post owned by other profile amog many posts
         should return a 401 unauthorized
@@ -294,3 +294,63 @@ class CommentViewTest(TestCase):
         self.assertEqual(self.post.comments.all()[0], created_comment)
         self.assertEqual(created_comment.author, self.user.profile)
         self.assertEqual(text, created_comment.text)
+
+
+class CommentDeleteViewTest(TestCase):
+
+    @classmethod
+    def setUp(cls):
+        cls.first_user = User.objects.create(
+            username='first_user', password='password')
+        first_profile = Profile.objects.create(user=cls.first_user)
+
+        cls.second_user = User.objects.create(
+            username='second_user', password='password')
+        cls.second_profile = Profile.objects.create(user=cls.second_user)
+
+        cls.post = Post.objects.create(text='Post text', author=first_profile)
+        cls.comment = Comment.objects.create(
+            text='Comment text', post=cls.post, author=first_profile)
+
+    @classmethod
+    def tearDown(cls):
+        cls.comment.delete()
+        cls.post.delete()
+        cls.first_user.delete()
+
+    def delete_comment(self, context, user):
+        self.client.force_login(user)
+        return self.client.post(reverse('feed:delete_comment'), context)
+
+    def test_delete_comment_with_invalid_id(self):
+        """
+        Trying to delete a comment with an invalid id must not delete it and
+        return a 404 not found
+        """
+        context = {'comment_id': 0}
+        response = self.delete_comment(context, self.first_user)
+
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(Comment.objects.all().count(), 1)
+
+    def test_delete_comment_not_owned(self):
+        """
+        Trying to delete a comment not owned must not delete it and
+        return a 401 unauthorized
+        """
+        context = {'comment_id': self.comment.id}
+        response = self.delete_comment(context, self.second_user)
+
+        self.assertEqual(response.status_code, 401)
+        self.assertEqual(Comment.objects.all().count(), 1)
+
+    def test_delete_a_owned_comment(self):
+        """
+        Trying to delete a owned comment must delete it and
+        return a 200 ok
+        """
+        context = {'comment_id': self.comment.id}
+        response = self.delete_comment(context, self.first_user)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Comment.objects.all().count(), 0)

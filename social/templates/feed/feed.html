@@ -74,8 +74,13 @@
               <div class="card-content grey-text text-darken-2">
                 <ul>
                   {% for comment in post.comments.all %}
-                    <li>
-                      <h6 class="right">{{ comment.pub_date }}</h6>
+                    <li id="comment_{{ comment.id }}">
+                      <h6 class="right">
+                        {{ comment.pub_date|date:"d/m/y H:i" }}
+                        {% if comment.author == user.profile %}
+                          <i onclick="deleteComment({% url 'feed:delete_comment' %}, {{ comment.id }})" class="material-icons">delete</i>
+                        {% endif %}
+                      </h6>
                       <h6><strong>{{ comment.author.first_name }}</strong></h6>
                       <h6>&emsp;{{ comment.text }}</h6>
                     </li>

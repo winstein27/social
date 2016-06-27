@@ -64,3 +64,18 @@ class CommentView(View):
             Comment.objects.create(text=text, author=author, post=post)
 
         return redirect(reverse('feed:feed'))
+
+
+class CommentDeleteView(View):
+
+    @method_decorator(login_required)
+    def post(self, request):
+        comment_id = request.POST['comment_id']
+
+        comment = get_object_or_404(Comment, id=comment_id)
+
+        if comment.author == request.user.profile:
+            comment.delete()
+            return HttpResponse(status=200)
+
+        return HttpResponse(status=401)

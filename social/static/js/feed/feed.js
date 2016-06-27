@@ -1,3 +1,7 @@
+var showToastMessage = function(message) {
+    Materialize.toast(message, 4000, 'rounded');
+};
+
 var deletePost = function(url, id) {
     $.ajaxSetup(getAjaxSettings());
 
@@ -7,7 +11,20 @@ var deletePost = function(url, id) {
         });
     })
     .fail(function() {
-        Materialize.toast("Não foi possível remover a publicação!", 4000, 'rounded');
+        showToastMessage("Não foi possível remover a publicação!");
+    });
+};
+
+var deleteComment = function(url, id) {
+    $.ajaxSetup(getAjaxSettings());
+
+    $.post(url, {'comment_id': id}, function(data) {
+        $("#comment_" + id).fadeOut(function() {
+            $(this).remove();
+        });
+    })
+    .fail(function() {
+        showToastMessage("Não foi possível remover o comentário!");
     });
 };
 
