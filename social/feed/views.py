@@ -8,8 +8,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.utils.decorators import method_decorator
 from django.views.generic import View
 
-from .forms import PostForm
-from .models import Post
+from .forms import PostForm, CommentForm
+from .models import Post, Comment
 
 
 class FeedView(View):
@@ -48,3 +48,19 @@ class PostDeleteView(View):
             return HttpResponse(status=200)
 
         return HttpResponse(status=401)
+
+
+class CommentView(View):
+
+    @method_decorator(login_required)
+    def post(self, request):
+        form = CommentForm(request.POST)
+
+        if form.is_valid():
+            author = request.user.profile
+            post = get_object_or_404(Post, id=form.cleaned_data['post'])
+            text = form.cleaned_data['text']
+
+            Comment.objects.create(text=text, author=author, post=post)
+
+        return redirect(reverse('feed:feed'))

@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 
 import os
 
-from feed.models import Post
+from feed.models import Post, Comment
 from authentication.models import Profile
 
 
@@ -236,3 +236,61 @@ class DeleteViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(post_list.count(), 2)
         self.assertNotIn(post_to_be_deleted, Post.objects.all())
+
+
+class CommentViewTest(TestCase):
+
+    @classmethod
+    def setUp(cls):
+        cls.user = User.objects.create(
+            username='test_user', password='password')
+        profile = Profile.objects.create(user=cls.user)
+        cls.post = Post.objects.create(text='Post text', author=profile)
+
+    @classmethod
+    def tearDown(cls):
+        cls.post.delete()
+        cls.user.delete()
+
+    def comment_post(self, context):
+        self.client.force_login(self.user)
+        return self.client.post(
+            reverse('feed:add_comment'), context, follow=True)
+
+    def test_create_comment_without_text(self):
+        """
+        Trying to create a comment without text must not create it
+        and redirect to feed screen
+        """
+        context = {'text': '', 'post': self.post.id}
+        response = self.comment_post(context)
+
+        self.assertEqual(len(response.redirect_chain), 1)
+        self.assertEqual(Comment.objects.all().count(), 0)
+
+    def test_create_comment_without_post(self):
+        """
+        Trying to create a comment without post must not create it
+        and redirect to feed screen
+        """
+        context = {'text': 'Comment text', 'post': ''}
+        response = self.comment_post(context)
+
+        self.assertEqual(len(response.redirect_chain), 1)
+        self.assertEqual(Comment.objects.all().count(), 0)
+
+    def test_create_comment(self):
+        """
+        Trying to create a comment with text and post must create it
+        and redirect to feed screen
+        """
+        text = 'Comment text'
+        context = {'text': text, 'post': self.post.id}
+        response = self.comment_post(context)
+
+        created_comment = Comment.objects.get(text=text)
+        self.assertEqual(len(response.redirect_chain), 1)
+        self.assertEqual(Comment.objects.all().count(), 1)
+        self.assertEqual(self.post.comments.all()[0], created_comment)
+        self.assertEqual(created_comment.author, self.user.profile)
+        self.assertEqual(text, created_comment.text)

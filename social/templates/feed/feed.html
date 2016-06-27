@@ -68,6 +68,35 @@
           <div class="card-content">
             <p>{{ post.text }}</p>
           </div>
+
+          <div><hr>
+            {% if post.comments.count %}
+              <div class="card-content grey-text text-darken-2">
+                <ul>
+                  {% for comment in post.comments.all %}
+                    <li>
+                      <h6 class="right">{{ comment.pub_date }}</h6>
+                      <h6><strong>{{ comment.author.first_name }}</strong></h6>
+                      <h6>&emsp;{{ comment.text }}</h6>
+                    </li>
+                  {% endfor %}
+                </ul>
+              </div><hr>
+            {% endif %}
+
+            <form action="{% url 'feed:add_comment' %}" method="POST">{% csrf_token %}
+              <input type="hidden" name="post" value="{{ post.id }}">
+              <div class="row valign-wrapper">
+                <div class="input-field col s9">
+                  <input type="text" name="text" placeholder="Comente..." required>
+                </div>
+                <div class="col s2 valign">
+                  <button type="submit" class="btn waves-effect waves-light orange accent-4">Comentar</button>
+                </div>
+              </div>
+            </form>
+          </div>
+
         </div>
       </div>
     {% endfor %}
