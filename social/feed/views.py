@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 
 from django.contrib.auth.decorators import login_required
@@ -9,7 +10,7 @@ from django.utils.decorators import method_decorator
 from django.views.generic import View
 
 from .forms import PostForm, CommentForm
-from .models import Post, Comment
+from .models import Post, Comment, Like
 
 
 class FeedView(View):
@@ -17,7 +18,7 @@ class FeedView(View):
 
     @method_decorator(login_required)
     def get(self, request):
-        post_list = Post.objects.all().order_by('-pub_date')
+        post_list = Post.get_posts_with_likes(request.user)
 
         return render(request, self.template_name, {'post_list': post_list})
 
@@ -79,3 +80,19 @@ class CommentDeleteView(View):
             return HttpResponse(status=200)
 
         return HttpResponse(status=401)
+
+
+class LikeView(View):
+
+    @method_decorator(login_required)
+    def post(self, request):
+        post_id = request.POST['post_id']
+        post = get_object_or_404(Post, id=post_id)
+
+        try:
+            like = Like.objects.get(post=post, author=request.user.profile)
+            like.delete()
+        except ObjectDoesNotExist:
+            Like.objects.create(post=post, author=request.user.profile)
+
+        return HttpResponse(post.likes.count(), status=200)

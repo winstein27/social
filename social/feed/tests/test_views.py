@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 
-from django.test import TestCase
 from django.core.urlresolvers import reverse
+
 from django.contrib.auth.models import User
+from django.test import TestCase
 
 import os
 
-from feed.models import Post, Comment
 from authentication.models import Profile
+from feed.models import Post, Comment, Like
 
 
 class FeedViewTest(TestCase):
@@ -317,6 +318,7 @@ class CommentDeleteViewTest(TestCase):
         cls.comment.delete()
         cls.post.delete()
         cls.first_user.delete()
+        cls.second_user.delete()
 
     def delete_comment(self, context, user):
         self.client.force_login(user)
@@ -354,3 +356,106 @@ class CommentDeleteViewTest(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(Comment.objects.all().count(), 0)
+
+
+class LikeViewTest(TestCase):
+
+    @classmethod
+    def setUp(cls):
+        cls.first_user = User.objects.create(
+            username='first_user', password='password')
+        first_profile = Profile.objects.create(user=cls.first_user)
+
+        cls.second_user = User.objects.create(
+            username='second_user', password='password')
+        cls.second_profile = Profile.objects.create(user=cls.second_user)
+
+        cls.post = Post.objects.create(text='Post text', author=first_profile)
+
+    @classmethod
+    def tearDown(cls):
+        cls.post.delete()
+        cls.first_user.delete()
+        cls.second_user.delete()
+
+    def like_post(self, user, context):
+        self.client.force_login(user)
+        return self.client.post(reverse('feed:like'), context)
+
+    def test_like_a_nonexistent_post(self):
+        """
+        Trying to like a nonexistent post must return a 404 not found
+        """
+        context = {'post_id': 0}
+        response = self.like_post(self.first_user, context)
+
+        self.assertEqual(response.status_code, 404)
+        self.assertQuerysetEqual(Like.objects.all(), [])
+
+    def test_like_a_post_with_zero_likes(self):
+        """
+        Trying to like a post that was not liked yet, must return a 200 OK
+        and the post's number of likes. A Like object must be created.
+        """
+        context = {'post_id': self.post.id}
+        response = self.like_post(self.first_user, context)
+
+        like = Like.objects.all()[0]
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Like.objects.all().count(), 1)
+        self.assertEqual(like.author, self.first_user.profile)
+        self.assertEqual(like.post, self.post)
+        self.assertEqual(self.post.likes.count(), 1)
+        self.assertEqual(int(response.content), 1)
+
+    def test_unlike_a_post(self):
+        """
+        Trying to unlike a post that was alrealdy liked, must return a 200 OK
+        and the post's number of likes. The Like object must be deleted.
+        """
+        Like.objects.create(author=self.first_user.profile, post=self.post)
+
+        context = {'post_id': self.post.id}
+        response = self.like_post(self.first_user, context)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Like.objects.all().count(), 0)
+        self.assertEqual(self.post.likes.count(), 0)
+        self.assertEqual(int(response.content), 0)
+
+    def test_like_a_post_with_some_likes(self):
+        """
+        Trying to like a post that was not liked yet, must return a 200 OK
+        and the post's number of likes. A Like object must be created.
+        """
+        Like.objects.create(author=self.second_user.profile, post=self.post)
+
+        context = {'post_id': self.post.id}
+        response = self.like_post(self.first_user, context)
+
+        like = Like.objects.get(author=self.first_user.profile)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Like.objects.all().count(), 2)
+        self.assertEqual(like.author, self.first_user.profile)
+        self.assertEqual(like.post, self.post)
+        self.assertEqual(self.post.likes.count(), 2)
+        self.assertEqual(int(response.content), 2)
+
+    def test_unlike_a_post_with_some_likes(self):
+        """
+        Trying to unlike a post that was alrealdy liked, must return a 200 OK
+        and the post's number of likes. The Like object must be deleted.
+        """
+        Like.objects.create(author=self.first_user.profile, post=self.post)
+        Like.objects.create(author=self.second_user.profile, post=self.post)
+
+        context = {'post_id': self.post.id}
+        response = self.like_post(self.first_user, context)
+
+        like = Like.objects.all()[0]
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Like.objects.all().count(), 1)
+        self.assertNotEqual(like.author, self.first_user.profile)
+        self.assertEqual(like.post, self.post)
+        self.assertEqual(self.post.likes.count(), 1)
+        self.assertEqual(int(response.content), 1)

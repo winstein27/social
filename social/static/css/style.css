@@ -40,3 +40,8 @@ form .materialize-textarea:focus {
 .tabs .indicator {
   background-color: #ff6d00;
 }
+
+.inline-paragraph {
+    display: inline;
+    padding-left: 15px;
+}

@@ -15,6 +15,29 @@ var deletePost = function(url, id) {
     });
 };
 
+var like = function(url, post_id) {
+    $.ajaxSetup(getAjaxSettings());
+
+    $.post(url, {'post_id': post_id}, function(likes_count) {
+        icon = $("#like_" + post_id);
+        icon.removeAttr("class");
+
+        post_likes_number = $("#" + post_id + "_likes");
+
+        if(Number(likes_count) < Number(post_likes_number.text())) {
+            icon.addClass("material-icons grey-text text-darken-2");
+        }
+        else {
+            icon.addClass("material-icons light-green-text text-accent-4");
+        }
+
+        post_likes_number.text(likes_count);
+    })
+    .fail(function() {
+        showToastMessage('Não foi possível gostar desta publicação!');
+    });
+};
+
 var deleteComment = function(url, id) {
     $.ajaxSetup(getAjaxSettings());
 
@@ -30,6 +53,10 @@ var deleteComment = function(url, id) {
 
 var init = function() {
     $(".delete-post").click(function(event) {
+        event.preventDefault();
+    });
+
+    $(".like-button").click(function(event) {
         event.preventDefault();
     });
 };

@@ -41,7 +41,7 @@
                 {% endif %}
               </div>
               <div class="col s9">
-                <h4>{{ post.author.first_name }}</h4>
+                <h5>{{ post.author.first_name }}</h5>
                 <h6>{{ post.pub_date }}</span></h6>
               </div>
 
@@ -59,14 +59,30 @@
           </div>
 
           {% if post.image %}
-          <hr>
-          <div class="card-image center-align">
-            <img src="{{ post.image.url }}">
-          </div>
+            <hr>
+            <div class="card-image center-align">
+              <img src="{{ post.image.url }}">
+            </div>
           {% endif %}
 
           <div class="card-content">
             <p>{{ post.text }}</p>
+          </div>
+
+          <div class="card-action valign-wrapper">
+            {% if post.liked %}
+              <a href="" onclick="like({% url 'feed:like' %},  {{ post.id }})" class="like-button"><i id="like_{{ post.id }}" class="material-icons light-green-text text-accent-4">thumb_up</i></a>
+            {% else %}
+              <a href="" onclick="like({% url 'feed:like' %},  {{ post.id }})" class="like-button"><i id="like_{{ post.id }}" class="material-icons grey-text text-darken-2">thumb_up</i></a>
+            {% endif %}
+
+            {% with likes=post.likes.all.count %}
+              {% if likes <= 1 %}
+                <p class="inline-paragraph"><span id="{{ post.id }}_likes">{{ likes }}</span> pessoa gostou desta publicação.</p>
+              {% elif likes > 1 %}
+                <p class="inline-paragraph"><span id="{{ post.id }}_likes">{{ likes }}</span> pessoas gostaram desta publicação.</p>
+              {% endif %}
+            {% endwith %}
           </div>
 
           <div><hr>
