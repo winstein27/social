@@ -13,8 +13,9 @@ var init = function() {
 
         $.ajaxSetup(getAjaxSettings());
 
-        $.post(url, $(this).serialize(), function(data) {
+        $.post(url, $(this).serialize(), function(url) {
             showPasswordMessage("light-green accent-3", "Senha alterada com sucesso!");
+            window.location.replace(url);
         })
         .fail(function() {
             showPasswordMessage("red accent-4", "Verifique os dados informados!");

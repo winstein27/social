@@ -2,7 +2,6 @@
 
 from django.core.urlresolvers import reverse
 
-from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from django.test import TestCase
 
@@ -218,49 +217,50 @@ class ProfilePasswordViewTest(TestCase):
         """
         context = {
             'old_password': 'wrong_password',
-            'new_password': 'new_password',
-            'verification_password': 'new_password'
+            'new_password1': 'new_password',
+            'new_password2': 'new_password'
         }
 
         response = self.try_to_change_password(context)
 
         self.assertEqual(response.status_code, 409)
-        self.assertNotEqual(
-            authenticate(username=self.username, password=self.password), None)
+        self.user.refresh_from_db()
+        self.assertTrue(self.user.check_password(self.password))
 
-    def test_change_password_with_different_new_and_verification_passwords(
-            self):
+    def test_change_password_with_different_new_passwords_1_and_2(self):
         """
         Trying to change the password with different new and verification
         password must not change it
         """
         context = {
             'old_password': self.password,
-            'new_password': 'new_password',
-            'verification_password': 'verification_password'
+            'new_password1': 'new_password',
+            'new_password2': 'verification_password'
         }
 
         response = self.try_to_change_password(context)
 
         self.assertEqual(response.status_code, 409)
-        self.assertNotEqual(
-            authenticate(username=self.username, password=self.password), None)
+        self.user.refresh_from_db()
+        self.assertTrue(self.user.check_password(self.password))
 
     def test_change_password_with_correct_values(self):
         """
         Trying to change the password with correct old password and same new
-        and verification password must change the user's password
+        and verification password must change the user's password and return
+        a url to redirect
         """
         new_password = 'new_password'
         context = {
             'old_password': self.password,
-            'new_password': new_password,
-            'verification_password': new_password
+            'new_password1': new_password,
+            'new_password2': new_password
         }
 
         response = self.try_to_change_password(context)
 
         self.assertEqual(response.status_code, 200)
-        self.assertNotEqual(
-            authenticate(username=self.username, password=new_password),
-            None)
+        self.assertEqual(
+            response.content.decode(), reverse('authentication:login'))
+        self.user.refresh_from_db()
+        self.assertTrue(self.user.check_password(new_password))

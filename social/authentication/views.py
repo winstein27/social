@@ -4,13 +4,13 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth import authenticate
+from django.contrib.auth.forms import PasswordChangeForm
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.utils.decorators import method_decorator
 from django.views.generic import View
 
-from .forms import ProfileForm, PasswordForm
+from .forms import ProfileForm
 from .models import Profile
 
 
@@ -48,23 +48,11 @@ class ProfilePasswordView(View):
 
     @method_decorator(login_required)
     def post(self, request):
-        form = PasswordForm(request.POST)
+        form = PasswordChangeForm(request.user, request.POST)
 
         if form.is_valid():
-            new_password = form.cleaned_data['new_password']
-            verification_password = form.cleaned_data['verification_password']
-
-            if new_password != verification_password:
-                return HttpResponse(status=409)
-
-            username = request.user.username
-            password = form.cleaned_data['old_password']
-            user = authenticate(username=username, password=password)
-
-            if user is not None:
-                user.set_password(new_password)
-                user.save()
-
-                return HttpResponse(status=200)
+            form.save()
+            return HttpResponse(
+                status=200, content=reverse('authentication:login'))
 
         return HttpResponse(status=409)
