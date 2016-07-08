@@ -135,5 +135,3 @@ AUTH_PASSWORD_VALIDATORS = [
 LOGIN_REDIRECT_URL = 'feed:feed'
 
 LOGIN_URL = 'authentication:login'
-
-# ALLOWED_HOSTS = []
